@@ -184,5 +184,225 @@ void DelDaun(bintree *P, infotype X){
 }
 /*procedure DeleteX (input/output P : BinTree, input X : infotype)
 { Menghapus simpul bernilai X bila ada dari P, HATI-HATI! }*/
-void DeleteX(bintree *P, infotype X);
+void DeleteX(bintree *P, infotype X){
+   if (!IsEmptyTree(*P)) {
+        if (info(*P) == X) {
+            if (IsDaun(*P)) {
+                // Node daun
+                DealokasiTree(*P);
+                *P = NIL;
+            } 
+            else if (IsUnerLeft(*P)) {
+                //Hanya ada anak kiri
+                *P = left(*P);
+            } 
+            else if (IsUnerRight(*P)) {
+                //Hanya ada anak kanan
+                *P = right(*P);
+            } 
+            else {
+                // Ada dua anak - ganti dengan anak kiri
+                *P = left(*P);
+            }
+        } 
+        else {
+            DeleteX(&left(*P), X);
+            DeleteX(&right(*P), X);
+        }
+    }
+}
+
+/*********** SOAL TAMBAHAN, DIKERJAKAN BILA LUANG *****************/
+/*KONSTRUKTOR*/
+/*function BuildBalanceTree (n : integer) -> BinTree
+{ Menghasilkan balanced tree dengan n node, nilai setiap node dibaca dari keyboard }*/
+bintree BuildBalanceTree(int n){
+    // Kamus lokal
+    bintree P;
+    infotype X;
+    int nLeft, nRight;
+    // Algoritma
+    if (n <= 0) {
+        return NIL;// Pohon kosong
+    } 
+    else {
+        printf("Masukkan nilai node: ");
+        scanf(" %c", &X);
+        P = AlokasiTree(X);
+        nLeft = n / 2;// Jumlah node di subpohon kiri
+        nRight = n - nLeft - 1;// Jumlah node di subpohon kanan
+        left(P) = BuildBalanceTree(nLeft);
+        right(P) = BuildBalanceTree(nRight);
+        return P;
+    }
+
+}
+
+/*PREDIKAT*/
+/*function IsBalanceTree (P : BinTree) -> boolean
+{ Menghasilkan true jika P seimbang, banyak node kiri ~= kanan }*/
+boolean IsBalanceTree(bintree P) {
+    // Kamus lokal
+    int leftCount, rightCount, diff;
+    // Algoritma
+    if (IsEmptyTree(P)) {
+        return true;
+    } 
+    else {
+        // Hitung jumlah node di subpohon kiri dan kanan
+        diff = nbelmtree(Left(P))- nbelmtree(Right(P));
+        // Ambil nilai absolut dari selisih
+        if (diff < 0) {
+            diff = -diff;
+        }
+        // Cek keseimbangan pada subpohon kiri dan kanan
+        if (diff <= 1 && IsBalanceTree(Left(P)) && IsBalanceTree(Right(P))) {
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
+}
+
+/* function maxTree(P:bintree)->character
+{mengembalikan huruf "maksimal" dari elemen P, A<B<C<..<Z }*/
+int maxTree(bintree P){
+    // Kamus lokal
+    int maxLeft, maxRight,;
+    // Algoritma
+    if (IsEmptyTree(P)) {
+        return '\0'; 
+    } 
+    else {
+        maxLeft = maxTree(Left(P));
+        maxRight = maxTree(Right(P));
+        // Cek dengan anak kiri
+        if (maxLeft > info(P)) {
+           info(P) = maxLeft;
+        }
+        // Cek dengan anak kanan
+        if (maxRight > info(P)) {
+            info(P) = maxRight;
+        }
+        return info(P);
+    }
+
+
+}
+
+/* function minTree(P:bintree)->character
+{mengembalikan huruf "minimal" dari elemen P, A<B<C<..<Z }*/
+int minTree(bintree P){
+    // Kamus lokal
+    int minLeft, minRight;
+    // Algoritma
+    if (IsEmptyTree(P)) {
+        return '\0'; 
+    } 
+    else {
+        minLeft = minTree(Left(P));
+        minRight = minTree(Right(P));
+        // Cek dengan anak kiri
+        if (minLeft < info(P) && minLeft != '\0') {
+           info(P) = minLeft;
+        }
+        // Cek dengan anak kanan
+        if (minRight < info(P) && minRight != '\0') {
+            info(P) = minRight;
+        }
+        return info(P);
+    }
+}
+
+/*{ Operator KHUSUS Binary Search Tree, node kiri selalu lebih kecil daripada node kanan }
+
+/*function BSearch (P : BinTree, X : infotype) → boolean
+{ Mengirimkan true jika ada node dari pohon binary search P yang bernilai X }*/
+boolean BSearch(bintree P, infotype X){
+    // Kamus lokal
+    // Algoritma
+    if (IsEmptyTree(P)) {
+        return False;
+    } 
+    else {
+        // Cek nilai pada node saat ini
+        if (info(P) == X) {
+            return True;
+        } 
+        else if (X < info(P)) // Cari di subpohon kiri
+        {
+            return BSearch(Left(P), X);
+        } 
+        else {// Cari di subpohon kanan
+            return BSearch(Right(P), X);
+        }
+    }
+}
+
+/*function InsSearch (P : BinTree, X : infotype) → BinTree
+{ Menghasilkan sebuah pohon Binary Search Tree P dengan tambahan simpul X. Belum ada simpul P yang bernilai X. }*/
+bintree InsSearch(bintree P, infotype X){
+    // Kamus lokal
+    // Algoritma
+    if (IsEmptyTree(P)) {
+        return AlokasiTree(X);
+    } 
+    else {
+        if (X < info(P)) {
+            left(P) = InsSearch(Left(P), X);
+        } 
+        else {
+            right(P) = InsSearch(Right(P), X);
+        }
+        return P;
+    }
+}
+
+/*procedure DelBtree (input/output P : BinTree, input X : infotype)
+{ I.S. Pohon binary search P tidak kosong }
+{ F.S. Nilai X yang dihapus pasti ada }
+{ Sebuah node dg nilai X dihapus }*/
+void DelBtree(bintree *P, infotype X){
+    // Kamus lokal
+    bintree temp;
+    // Algoritma
+    if (!IsEmptyTree(*P)) {
+        if (X < info(*P)) {
+            DelBtree(&left(*P), X);
+        } 
+        else if (X > info(*P)) {
+            DelBtree(&right(*P), X);
+        } 
+        else {
+            if (IsDaun(*P)) {
+                // Node daun
+                DealokasiTree(*P);
+                *P = NIL;
+            } 
+            else if (IsUnerLeft(*P)) {
+                // Hanya ada anak kiri
+                temp = *P;
+                *P = left(*P);
+                DealokasiTree(temp);
+            } 
+            else if (IsUnerRight(*P)) {
+                // Hanya ada anak kanan
+                temp = *P;
+                *P = right(*P);
+                DealokasiTree(temp);
+            } 
+            else {
+                // Ada dua anak - cari pengganti dari subpohon kanan
+                bintree successor = right(*P);
+                while (!IsEmptyTree(left(successor))) {
+                    successor = left(successor);
+                }
+                info(*P) = info(successor); // Ganti nilai dengan successor
+                DelBtree(&right(*P), info(successor)); // Hapus successor
+            }
+        }
+    }
+}
+
 
