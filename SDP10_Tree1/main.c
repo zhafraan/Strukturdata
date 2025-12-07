@@ -1,4 +1,4 @@
-/* File : pohon1.c */
+/* File : main.c */
 /* Deskripsi : ADT bintree berkait dengan representasi fisik pointer */
 /* NIM & Nama : 24060124140124/Aqiatilllah Rezi Zhafran*/
 /* Tanggal : 28 November 2025*/

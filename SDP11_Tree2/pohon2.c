@@ -2,7 +2,7 @@
 /* Deskripsi : ADT bintree berkait dengan representasi fisik pointer */
 /* pohon2 melengkapi operator ADT bintree yang ada dalam pohon1 */
 /* NIM & Nama : 24060124140124/Aqiatilllah Rezi Zhafran*/
-/* Tanggal : 4 Desember 2025*/
+/* Tanggal : 6 Desember 2025*/
 
 #include "pohon2.h"
 
@@ -16,15 +16,15 @@ void PrintTreeInden(bintree P, int H ){
     // Algoritma
     if(!IsEmptyTree(P)) {
         printf("%c\n", info(P));
-        if(!IsEmptyTree(Left(P)) || !IsEmptyTree(Right(P))){ 
+        if(!IsEmptyTree(GetLeft(P)) || !IsEmptyTree(GetRight(P))){ 
                 for(i=0; i<=H; i++) {
                     printf("  ");
                 }
-                PrintTreeInden(Left(P), H + 3);
+                PrintTreeInden(GetLeft(P), H + 3);
                 for(i=0; i<=H; i++) {
                     printf("  ");
                 }
-                PrintTreeInden(Right(P), H + 3);
+                PrintTreeInden(GetRight(P), H + 3);
             }
         }
     else {
@@ -60,7 +60,7 @@ void UpdateAllX(bintree *P, infotype X, infotype Y){
     if (!IsEmptyTree(*P)){
         if (info(*P) == X){ 
             info(*P) = Y;
-        }
+        }// rekursif ke kiri dan kanan
         if(!IsEmptyTree(GetLeft(*P))) {
             UpdateAllX(&left(*P), X, Y);
         }
@@ -81,7 +81,7 @@ void AddDaunTerkiri(bintree *P, infotype X){
         *P = AlokasiTree(X);
     }
     else {
-        if(IsUnerRight(*P) || IsDaun(*P)){
+        if(IsUnerRight(*P) || IsDaun(*P)){// jika hanya ada anak kanan atau daun
             left(*P) = AlokasiTree(X);
         }
         else{
@@ -97,16 +97,16 @@ void AddDaun(bintree *P, infotype X, infotype Y, boolean Kiri){
     //Kamus lokal
     //Algoritma
     if(!IsEmptyTree(*P)) {
-        if(info(*P) == X && IsDaun(*P)) {
-            if(Kiri) {
+        if(info(*P) == X && IsDaun(*P)) {// ketemu daun X di akar
+            if(Kiri) {// tambah di kiri
                 left(*P) = AlokasiTree(Y);
             }
-            else {
+            else {// tambah di kanan
                 right(*P) = AlokasiTree(Y);
             }
         }
         else {
-            if(!IsDaun(*P)) {
+            if(!IsDaun(*P)) {// jika bukan isdaun
                 if(SearchX(GetLeft(*P), X)) {
                     AddDaun(&left(*P), X, Y, Kiri);
                 }
@@ -123,18 +123,18 @@ void AddDaun(bintree *P, infotype X, infotype Y, boolean Kiri){
 void InsertX(bintree *P, infotype X){
     //Kamus lokal
     //Algoritma
-    if(IsEmptyTree(*P)) {
+    if(IsEmptyTree(*P)) {// pohon kosong alokasi di akar
         *P = AlokasiTree(X);
     }
-    else if(IsDaun(*P)) {
+    else if(IsDaun(*P)) {// pohon hanya punya akar alokasi di kiri
         left(*P) = AlokasiTree(X);
     }
     else {
-            if (nbelmtree(GetLeft(*P)) <= nbelmtree(GetRight(*P))){
-                InsertX(&left(*P), X);
+            if (NbElm(GetLeft(*P)) <= NbElm(GetRight(*P))){// jika kiri <= kanan
+                InsertX(&left(*P), X);// tambahkan di kiri
             }
             else{ 
-                InsertX(&right(*P), X);
+                InsertX(&right(*P), X);// tambahkan di kanan
         }
     }
 }
@@ -148,17 +148,17 @@ void DelDaunTerkiri(bintree *P, infotype *X){
     // kamus lokal
     // algoritma
     if(!IsEmptyTree(*P)) {
-        if(IsDaun(*P)) {
+        if(IsDaun(*P)) {// jika daun terkiri ditemukan 
             *X = info(*P);
             DealokasiTree(P);
             *P = NIL;
         }
-        else{
-            if(Left(*P) != NIL) {
-                DelDaunTerkiri(&left(*P), &X);
+        else{// telusuri ke kiri
+            if(GetLeft(*P) != NIL) {
+                DelDaunTerkiri(&left(*P), X);// rekursif ke kiri
             }
             else {
-                DelDaunTerkiri(&right(*P), &X);
+                DelDaunTerkiri(&right(*P), X);// rekursif ke kanan
             }
         }
     }
@@ -173,7 +173,7 @@ void DelDaun(bintree *P, infotype X){
     // algoritma
     if (*P != NIL){
         if (info(*P) == X && IsDaun(*P)){
-            DealokasiTree(*P);
+            DealokasiTree(P);
             *P = NIL;
         }
         else{
@@ -185,24 +185,31 @@ void DelDaun(bintree *P, infotype X){
 /*procedure DeleteX (input/output P : BinTree, input X : infotype)
 { Menghapus simpul bernilai X bila ada dari P, HATI-HATI! }*/
 void DeleteX(bintree *P, infotype X){
-   if (!IsEmptyTree(*P)) {
+    // Kamus lokal
+    bintree temp;
+    // Algoritma
+    if (!IsEmptyTree(*P)) {
         if (info(*P) == X) {
+            // Node ditemukan
             if (IsDaun(*P)) {
-                // Node daun
-                DealokasiTree(*P);
+                DealokasiTree(P);
                 *P = NIL;
             } 
-            else if (IsUnerLeft(*P)) {
-                //Hanya ada anak kiri
+            else if (IsUnerLeft(*P)) {// hanya ada anak kiri
+                temp = *P;
                 *P = left(*P);
-            } 
-            else if (IsUnerRight(*P)) {
-                //Hanya ada anak kanan
+                DealokasiTree(&temp);
+            }
+            else if (IsUnerRight(*P)) {// hanya ada anak kanan
+                temp = *P;
                 *P = right(*P);
-            } 
+                DealokasiTree(&temp);
+            }
             else {
-                // Ada dua anak - ganti dengan anak kiri
+                // ada dua anak ganti dengan anak kiri
+                temp = *P;
                 *P = left(*P);
+                DealokasiTree(&temp);
             }
         } 
         else {
@@ -243,24 +250,24 @@ bintree BuildBalanceTree(int n){
 { Menghasilkan true jika P seimbang, banyak node kiri ~= kanan }*/
 boolean IsBalanceTree(bintree P) {
     // Kamus lokal
-    int leftCount, rightCount, diff;
+    int diff;
     // Algoritma
     if (IsEmptyTree(P)) {
-        return true;
+        return True;
     } 
     else {
         // Hitung jumlah node di subpohon kiri dan kanan
-        diff = nbelmtree(Left(P))- nbelmtree(Right(P));
+        diff = NbElm(GetLeft(P))- NbElm(GetRight(P));
         // Ambil nilai absolut dari selisih
         if (diff < 0) {
             diff = -diff;
         }
         // Cek keseimbangan pada subpohon kiri dan kanan
-        if (diff <= 1 && IsBalanceTree(Left(P)) && IsBalanceTree(Right(P))) {
-            return true;
+        if (diff <= 1 && IsBalanceTree(GetLeft(P)) && IsBalanceTree(GetRight(P))) {
+            return True;
         } 
         else {
-            return false;
+            return False;
         }
     }
 }
@@ -269,14 +276,15 @@ boolean IsBalanceTree(bintree P) {
 {mengembalikan huruf "maksimal" dari elemen P, A<B<C<..<Z }*/
 int maxTree(bintree P){
     // Kamus lokal
-    int maxLeft, maxRight,;
+    int maxLeft, maxRight;
     // Algoritma
     if (IsEmptyTree(P)) {
         return '\0'; 
     } 
     else {
-        maxLeft = maxTree(Left(P));
-        maxRight = maxTree(Right(P));
+        maxLeft = maxTree(GetLeft(P));
+        maxRight = maxTree(GetRight(P));
+
         // Cek dengan anak kiri
         if (maxLeft > info(P)) {
            info(P) = maxLeft;
@@ -301,8 +309,8 @@ int minTree(bintree P){
         return '\0'; 
     } 
     else {
-        minLeft = minTree(Left(P));
-        minRight = minTree(Right(P));
+        minLeft = minTree(GetLeft(P));
+        minRight = minTree(GetRight(P));
         // Cek dengan anak kiri
         if (minLeft < info(P) && minLeft != '\0') {
            info(P) = minLeft;
@@ -332,10 +340,10 @@ boolean BSearch(bintree P, infotype X){
         } 
         else if (X < info(P)) // Cari di subpohon kiri
         {
-            return BSearch(Left(P), X);
+            return BSearch(GetLeft(P), X);
         } 
         else {// Cari di subpohon kanan
-            return BSearch(Right(P), X);
+            return BSearch(GetRight(P), X);
         }
     }
 }
@@ -348,12 +356,12 @@ bintree InsSearch(bintree P, infotype X){
     if (IsEmptyTree(P)) {
         return AlokasiTree(X);
     } 
-    else {
-        if (X < info(P)) {
-            left(P) = InsSearch(Left(P), X);
+    else {// Telusuri ke kiri atau kanan
+        if (X < info(P)) {// Telusuri ke kiri
+            left(P) = InsSearch(GetLeft(P), X);
         } 
-        else {
-            right(P) = InsSearch(Right(P), X);
+        else {// Telusuri ke kanan
+            right(P) = InsSearch(GetRight(P), X);
         }
         return P;
     }
@@ -366,6 +374,7 @@ bintree InsSearch(bintree P, infotype X){
 void DelBtree(bintree *P, infotype X){
     // Kamus lokal
     bintree temp;
+    bintree successor;
     // Algoritma
     if (!IsEmptyTree(*P)) {
         if (X < info(*P)) {
@@ -377,24 +386,24 @@ void DelBtree(bintree *P, infotype X){
         else {
             if (IsDaun(*P)) {
                 // Node daun
-                DealokasiTree(*P);
+                DealokasiTree(P);
                 *P = NIL;
             } 
             else if (IsUnerLeft(*P)) {
                 // Hanya ada anak kiri
                 temp = *P;
                 *P = left(*P);
-                DealokasiTree(temp);
+                DealokasiTree(&temp);
             } 
             else if (IsUnerRight(*P)) {
                 // Hanya ada anak kanan
                 temp = *P;
                 *P = right(*P);
-                DealokasiTree(temp);
+                DealokasiTree(&temp);
             } 
             else {
                 // Ada dua anak - cari pengganti dari subpohon kanan
-                bintree successor = right(*P);
+                successor = GetRight(*P);
                 while (!IsEmptyTree(left(successor))) {
                     successor = left(successor);
                 }
